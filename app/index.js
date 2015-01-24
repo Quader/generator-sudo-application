@@ -8,6 +8,28 @@ var fs = require('fs');
 module.exports = yeoman.generators.Base.extend({
   props: {},
 
+  constructor: function () {
+    yeoman.generators.Base.apply(this, arguments);
+    this.argument('name', {
+      desc: 'the projectname',
+      type: String,
+      required: false
+    });
+    this.argument('desc', {
+      desc: 'short description of the project',
+      type: String,
+      required: false
+    });
+    this.argument('author', {
+      desc: 'the projects initial author',
+      type: String,
+      required: false
+    });
+
+    this.application_name = this.name;
+    this.application_desc = this.desc;
+  },
+
   initializing: function () {
     this.pkg = require('../package.json');
   },
@@ -20,7 +42,36 @@ module.exports = yeoman.generators.Base.extend({
       'Team sudo\'s ' + chalk.red('application maker')
     ));
 
-    var prompts = [
+    var prompts = [];
+
+    if(this.application_name === undefined){
+        prompts.push({
+        type    : 'input',
+        name    : 'application_name',
+        message : 'What\'s your application name?',
+        store   : true
+      });
+    }
+
+    if(this.application_desc === undefined){
+        prompts.push({
+          type    : 'input',
+          name    : 'application_desc',
+          message : 'What\'s the description for your application?',
+          store   : true
+        });
+    }
+
+    if(this.author === undefined){
+        prompts.push({
+          type    : 'input',
+          name    : 'author',
+          message : 'What\'s your Name?',
+          store   : true
+        });
+    }
+    var self = this;
+
     // {
     //   type    : 'list',
     //   name    : 'repository_type',
@@ -31,41 +82,28 @@ module.exports = yeoman.generators.Base.extend({
     //   ],
     //   store   : true
     // },
-    {
-      type    : 'input',
-      name    : 'application_name',
-      message : 'What\'s your application name?',
-      store   : true
-    },
-    {
-      type    : 'input',
-      name    : 'application_desc',
-      message : 'What\'s the description for your application?',
-      store   : true
-    }
-    ,{
-      type    : 'input',
-      name    : 'author',
-      message : 'What\'s your Name?',
-      store   : true
-    }
-    ,{
-      type    : 'confirm',
-      name    : 'use_emil',
-      message : 'Do you want to use EMIL (set of UI Elements)?',
-      store   : true
-    }
-    ,{
-      type    : 'confirm',
-      name    : 'use_udo',
-      message : 'Do you want to use UDO (Javascript Framework)?',
-      store   : true
-    }
-    ];
+    prompts.push(
+      {
+        type    : 'confirm',
+        name    : 'use_emil',
+        message : 'Do you want to use EMIL (set of UI Elements)?',
+        store   : true
+      }
+    );
 
-    var self = this;
+    prompts.push(
+      {
+        type    : 'confirm',
+        name    : 'use_udo',
+        message : 'Do you want to use UDO (Javascript Framework)?',
+        store   : true
+      }
+    );
+
     this.prompt(prompts, function (props) {
-      self.props = props;
+      self.application_name = self.application_name || props['application_name'];
+      self.application_desc = self.application_desc || props['application_desc'];
+      self.author = self.author || props['author'];
       done();
     }.bind(this));
   },
@@ -101,9 +139,9 @@ module.exports = yeoman.generators.Base.extend({
         this.templatePath('_package.json'),
         this.destinationPath('package.json'),
         {
-          "application_name": this.props.application_name,
-          "author": this.props.author,
-          "application_desc": this.props.application_desc
+          "application_name": this.application_name,
+          "author": this.author,
+          "application_desc": this.application_desc
         }
       );
 
@@ -111,9 +149,9 @@ module.exports = yeoman.generators.Base.extend({
         this.templatePath('_bower.json'),
         this.destinationPath('bower.json'),
         {
-          "application_name": this.props.application_name,
-          "author": this.props.author,
-          "application_desc": this.props.application_desc
+          "application_name": this.application_name,
+          "author": this.author,
+          "application_desc": this.application_desc
         }
       );
 
