@@ -8,4 +8,6 @@ echo get bower dependencies
 bower install
 echo got bower dependencies
 
+grunt setup
+
 exit $?

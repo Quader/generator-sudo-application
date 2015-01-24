@@ -22,34 +22,34 @@ module.exports = function(grunt) {
 
     sudo_components: {
       build: {
-      //   options: {
-      //     namespace: 'client',
-      //     less: {
-      //       // reference import!, you have to include this file to the client anyway
-      //       imports: ['<%= pkg.project.directories.src %>app.less']
-      //     },
-      //     js: {
-      //       beautify: false,
-      //       warnings: true,
-      //       mangle: false
-      //     }
-      //   },
-      //   files: [{
-      //     expand: true,
-      //     cwd: '<%= pkg.project.directories.src %>',
-      //     src: ['**/*'],
-      //     dest: '<%= pkg.project.directories.bin %>'
-      //   }],
+        options: {
+          namespace: 'client',
+          less: {
+            // reference import!, you have to include this file to the client anyway
+            imports: ['<%= pkg.project.directories.src %>client.less']
+          },
+          js: {
+            beautify: false,
+            warnings: true,
+            mangle: false
+          }
+        },
+        files: [{
+          expand: true,
+          cwd: '<%= pkg.project.directories.src %>client/components/',
+          src: ['**/*'],
+          dest: '<%= pkg.project.directories.bin %>'
+        }],
       }
     },
 
-    // compile jade files
+    // compile root template
     jade: {
-      index: {
-        // files: {
-        //   '<%= pkg.project.directories.bin %>assets/index.html':
-        //     '<%= pkg.project.directories.src %>el/index.jade'
-        // }
+      client: {
+        files: {
+          '<%= pkg.project.directories.bin %>index.html':
+            '<%= pkg.project.directories.src %>client/client.jade'
+        }
       }
     },
 
@@ -81,15 +81,20 @@ module.exports = function(grunt) {
 
     // compile less
     less: {
-      build: {
-        // files: {
-        //   '<%= pkg.project.directories.bin %>app.css' : [
-        //     '<%= pkg.project.directories.src %>app.less'
-        //   ]
-        // }
+      client: {
+        files: {
+          '<%= pkg.project.directories.bin %>client.css' : [
+            '<%= pkg.project.directories.src %>client.less'
+          ]
+        }
       }
     },
   });
 
-  grunt.registerTask('build', 'Builds files from source.', []);
+  grunt.registerTask('build', 'Builds files from source.', [
+    'clean:build',
+    'sudo_subcomponents:build',
+    'sudo_components:build',
+    'jade:client'
+  ]);
 };

@@ -2,6 +2,8 @@
 var yeoman = require('yeoman-generator');
 var chalk = require('chalk');
 var yosay = require('yosay');
+var execSync = require("exec-sync");
+var fs = require('fs');
 
 module.exports = yeoman.generators.Base.extend({
   props: {},
@@ -18,7 +20,18 @@ module.exports = yeoman.generators.Base.extend({
       'Team sudo\'s ' + chalk.red('application maker')
     ));
 
-    var prompts = [{
+    var prompts = [
+    // {
+    //   type    : 'list',
+    //   name    : 'repository_type',
+    //   message : 'What version management do you use?',
+    //   choices : [
+    //     'git',
+    //     'mercurial'
+    //   ],
+    //   store   : true
+    // },
+    {
       type    : 'input',
       name    : 'application_name',
       message : 'What\'s your application name?',
@@ -29,13 +42,26 @@ module.exports = yeoman.generators.Base.extend({
       name    : 'application_desc',
       message : 'What\'s the description for your application?',
       store   : true
-    },
-    {
+    }
+    ,{
       type    : 'input',
       name    : 'author',
       message : 'What\'s your Name?',
       store   : true
-    }];
+    }
+    ,{
+      type    : 'confirm',
+      name    : 'use_emil',
+      message : 'Do you want to use EMIL (set of UI Elements)?',
+      store   : true
+    }
+    ,{
+      type    : 'confirm',
+      name    : 'use_udo',
+      message : 'Do you want to use UDO (Javascript Framework)?',
+      store   : true
+    }
+    ];
 
     var self = this;
     this.prompt(prompts, function (props) {
@@ -127,9 +153,51 @@ module.exports = yeoman.generators.Base.extend({
     }
   },
 
+  _shell: function (command, args) {
+    try {
+      var ret = execSync(command + ' ' +  args.join(' '));
+      console.log(ret);
+      return ret;
+    }
+    catch (e) {
+      console.warn(e);
+      return e;
+    }
+  },
+
+  _setupRepository: function (next) {
+    var submodules = {
+      'emil': 'git@github.com:webvariants/emil.git',
+      'udo' : 'git@github.com:wirsich/udo.git'
+    };
+
+    // init repo if not exists
+    if(!fs.existsSync(this.destinationPath('.git/'))) {
+      this.log(chalk.green('setup repository'));
+      this._shell('git', ['init']);
+    }
+    // run git submodule commands
+    if (this.props.use_udo) {
+      this.log(chalk.green('adding udo as submodule'));
+      this._shell('git', ['submodule', 'add', submodules['udo'], 'src/udo', '-f']);
+    }
+    if (this.props.use_emil) {
+      this.log(chalk.green('adding emil as submodule'));
+      this._shell('git', ['submodule', 'add', submodules['emil'], 'src/emil', '-f']);
+    }
+
+    next();
+  },
+
   install: function () {
-    this.installDependencies({
-      skipInstall: this.options['skip-install']
+    var self = this;
+    this._setupRepository(function () {
+      self.installDependencies({
+        skipInstall: self.options['skip-install']
+      });
+
+      self.log(chalk.green('processing setup of all components, please wait (this may take a while)'));
+      self._shell('sh', ['setup.sh']);
     });
   }
 });
