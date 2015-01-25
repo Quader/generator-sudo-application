@@ -35,6 +35,37 @@ Finally, initiate the generator:
 yo sudo-application
 ```
 
+### Sudo-Application:app
+
+This generator creates the structure of a typically project.
+It enables you to start a new project and optinally use EMIL and UDO to start your development.
+
+If you choose one of these subcomponents, the generator also starts the setup of each subcomponent.
+
+All you have to do is to type "yo sudo-application:app" and answer the questions on the screen.
+
+
+The result is a ready-to-use environment for you application.
+
+### tools and technology we use
+### the idea of components
+
+#### src folder
+#### bin folder
+#### test folder
+
+#### grunt interface
+
+#### grunt build tasks
+
+### usage
+
+### development
+### build
+### continuos integration
+### staging
+
+
 ### Getting To Know Yeoman
 
 Yeoman has a heart of gold. He's a person with feelings and opinions, but he's very easy to work with. If you think he's too opinionated, he can be easily convinced.
