@@ -45,7 +45,10 @@ describe('sudo-application:app', function () {
       'build/tasks/lint.js',
       'build/tasks/package.js',
       'build/tasks/setup.js',
-      'build/tasks/test.js'
+      'build/tasks/test.js',
+
+      'src/client/client.jade',
+      'src/client/components/empty',
     ]);
   });
 });
