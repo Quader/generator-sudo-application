@@ -4,6 +4,7 @@ var chalk = require('chalk');
 var yosay = require('yosay');
 var execSync = require("exec-sync");
 var fs = require('fs');
+var ustring = require("underscore.string");
 
 module.exports = yeoman.generators.Base.extend({
   props: {},
@@ -69,31 +70,36 @@ module.exports = yeoman.generators.Base.extend({
         });
     }
 
-    prompts.push(
-      {
-        type    : 'confirm',
-        name    : 'use_emil',
-        message : 'Do you want to use EMIL (set of UI Elements)?',
-        store   : true
-      }
-    );
+    // prompts.push(
+    //   {
+    //     type    : 'confirm',
+    //     name    : 'use_emil',
+    //     message : 'Do you want to use EMIL (set of UI Elements)?',
+    //     store   : true
+    //   }
+    // );
 
-    prompts.push(
-      {
-        type    : 'confirm',
-        name    : 'use_udo',
-        message : 'Do you want to use UDO (Javascript Framework)?',
-        store   : true
-      }
-    );
+    // prompts.push(
+    //   {
+    //     type    : 'confirm',
+    //     name    : 'use_udo',
+    //     message : 'Do you want to use UDO (Javascript Framework)?',
+    //     store   : true
+    //   }
+    // );
 
     var self = this;
     this.prompt(prompts, function (props) {
       self.props = props;
 
-      self.props.application_name = self.application_name || props.application_name;
-      self.props.application_desc = self.application_desc || props.application_desc;
-      self.props.author           = self.author || props.author;
+      //@TODO
+      self.props.use_udo  = true;
+      self.props.use_emil = true;
+
+      self.props.application_name  = self.application_name || props.application_name;
+      self.props.application_desc  = self.application_desc || props.application_desc;
+      self.props.author            = self.author || props.author;
+      self.props._application_name = ustring.slugify(self.props.application_name)
 
       done();
     }.bind(this));
@@ -140,7 +146,7 @@ module.exports = yeoman.generators.Base.extend({
         this.templatePath('_package.json'),
         this.destinationPath('package.json'),
         {
-          "application_name": this.props.application_name,
+          "application_name": this.props._application_name,
           "author": this.props.author,
           "application_desc": this.props.application_desc,
           "components": components.join(",\n")
@@ -151,7 +157,7 @@ module.exports = yeoman.generators.Base.extend({
         this.templatePath('_bower.json'),
         this.destinationPath('bower.json'),
         {
-          "application_name": this.props.application_name,
+          "application_name": this.props._application_name,
           "author": this.props.author,
           "application_desc": this.props.application_desc
         }
@@ -176,9 +182,28 @@ module.exports = yeoman.generators.Base.extend({
         this.destinationPath('./')
       );
 
-      var ustring = require("underscore.string");
+      this.mkdir(this.destinationPath('src/') + this.props._application_name);
+      this._emil_init();
 
-      this.mkdir(this.destinationPath('src/') + ustring.slugify(this.props.application_name));
+
+      // template tasks (after created the structure)
+      var data = {
+        _application_name: this.props._application_name,
+        application_name: this.props.application_name,
+        application_desc: this.props.application_desc,
+        author: this.props.author,
+      };
+
+      var sources = [
+        'src/client/client.js',
+        'src/client/client.jade',
+        'src/client/client.less',
+      ];
+
+      var i = 0, l = sources.length;
+      for (; i < l; ++i) {
+        this.template(this.destinationPath(sources[i]), sources[i], data);
+      }
     },
 
     projectfiles: function () {
@@ -193,16 +218,15 @@ module.exports = yeoman.generators.Base.extend({
     }
   },
 
-  _shell: function (command, args) {
-    try {
-      var ret = execSync(command + ' ' +  args.join(' '));
-      this.log(chalk.green(ret));
-      return ret;
-    }
-    catch (e) {
-      this.log(chalk.red(e));
-      return e;
-    }
+  _udo_init: function () {
+  },
+
+  _emil_init: function () {
+      // create emil theme
+      this.directory(
+        this.templatePath('_emil-theme'),
+        this.destinationPath('src/' + this.props._application_name)
+      );
   },
 
   _setupRepository: function (next) {
@@ -213,36 +237,52 @@ module.exports = yeoman.generators.Base.extend({
 
     // init repo if not exists
     if(!fs.existsSync(this.destinationPath('.git/'))) {
-      this.log(chalk.green('> setup repository'));
+      this.log(chalk.blue('> setup repository'));
       this._shell('git', ['init']);
     }
     // run git submodule commands
     if (this.props.use_udo) {
-      this.log(chalk.green('> adding udo as submodule'));
-      this._shell('git', ['submodule', 'add', submodules['udo'], 'src/udo', '-f']);
+      this.log(chalk.blue('> adding udo as submodule'));
+      // this._shell('git', ['submodule', 'add', submodules['udo'], 'src/udo', '-f']);
+      this._udo_init();
     }
     if (this.props.use_emil) {
-      this.log(chalk.green('> adding emil as submodule'));
-      this._shell('git', ['submodule', 'add', submodules['emil'], 'src/emil', '-f']);
+      this.log(chalk.blue('> adding emil as submodule'));
+      // this._shell('git', ['submodule', 'add', submodules['emil'], 'src/emil', '-f']);
+      this._emil_init();
     }
 
     next();
   },
+
 
   install: function () {
     var self = this;
     var done = this.async();
 
     this._setupRepository(function () {
-      self.installDependencies({
-        skipInstall: self.options['skip-install']
-      });
+      // self.installDependencies({
+      //   skipInstall: self.options['skip-install']
+      // });
 
       self.log(chalk.blue('processing setup of all components, please wait (this may take a while)'));
       if (!self.options['skip-install']) {
-        self._shell('sh', ['setup.sh']);
+        // @FIXME DEBUG
+        // self._shell('sh', ['setup.sh']);
       }
       done();
     });
+  },
+
+  _shell: function (command, args) {
+    try {
+      var ret = execSync(command + ' ' +  args.join(' '));
+      this.log(chalk.green(ret));
+      return ret;
+    }
+    catch (e) {
+      this.log(chalk.red(e));
+      return e;
+    }
   }
 });

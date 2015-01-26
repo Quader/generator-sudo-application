@@ -26,7 +26,7 @@ module.exports = function(grunt) {
           namespace: 'client',
           less: {
             // reference import!, you have to include this file to the client anyway
-            imports: ['<%= pkg.project.directories.src %>client.less']
+            imports: ['<%= config.files.client_css %>']
           },
           js: {
             beautify: false,
@@ -38,7 +38,7 @@ module.exports = function(grunt) {
           expand: true,
           cwd: '<%= pkg.project.directories.src %>client/components/',
           src: ['**/*'],
-          dest: '<%= pkg.project.directories.bin %>'
+          dest: '<%= pkg.project.directories.bin %>components/'
         }],
       }
     },
@@ -63,8 +63,7 @@ module.exports = function(grunt) {
           mangle: false,
           compress: false
         },
-        src: [
-        ],
+        src: '<%= config.files.vendor %>',
         dest: '<%= pkg.project.directories.bin %>vendor.js'
       },
       client: {
@@ -74,7 +73,7 @@ module.exports = function(grunt) {
           mangle: false,
           compress: false
         },
-        src: [],
+        src: '<%= config.files.client %>',
         dest: '<%= pkg.project.directories.bin %>client.js'
       }
     },
@@ -84,7 +83,7 @@ module.exports = function(grunt) {
       client: {
         files: {
           '<%= pkg.project.directories.bin %>client.css' : [
-            '<%= pkg.project.directories.src %>client.less'
+            '<%= config.files.client_css %>'
           ]
         }
       }
@@ -95,6 +94,9 @@ module.exports = function(grunt) {
     'clean:build',
     'sudo_subcomponents:build',
     'sudo_components:build',
+    'uglify:vendor',
+    'uglify:client',
+    'less:client',
     'jade:client'
   ]);
 };

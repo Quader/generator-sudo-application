@@ -1,0 +1,148 @@
+/* topdoc
+  application: <%= application_name %>
+  author: Steven David <steven.david@webvariants.de>
+  name: typography
+  example: Link to an example on sites like Codepen.io or jsfiddle.net
+  tags: typography
+*/
+
+.emil-typo {
+    font-family: @font-family-base;
+    font-size: @font-size-base;
+    line-height: @line-height-base;
+
+    &.large {
+        font-size: @font-size-large;
+        line-height: @line-height-large;
+    }
+
+    &.small {
+        font-size: @font-size-small;
+        line-height: @line-height-small;
+    }
+
+    &.header {
+        font-size: @font-size-large;
+        line-height: @line-height-large;
+        margin-bottom: 20px;
+        display: block;
+    }
+
+}
+
+.emil-headings {
+    font-family: @headings-font-family;
+    font-weight: @headings-font-weight;
+    line-height: @headings-line-height;
+    color: @headings-color;
+}
+
+body {
+    .emil-typo;
+}
+
+h1, h2, h3, h4, h5 {
+    .emil-headings;
+}
+
+h1 {
+    font-size: @font-size-h1;
+}
+
+h2 {
+    font-size: @font-size-h2;
+}
+
+h3 {
+    font-size: @font-size-h3;
+}
+
+h4 {
+    font-size: @font-size-h4;
+}
+
+h5 {
+    font-size: @font-size-h5;
+}
+
+
+.font-size(@sizeValue) {
+    @remValue: @sizeValue;
+    @pxValue: (@sizeValue * 10);
+    font-size: ~"@{pxValue}px";
+    font-size: ~"@{remValue}rem";
+}
+
+.line-height(@lineValue) {
+    @remlineValue: @lineValue;
+    @pxlineValue: (@lineValue * 10);
+    line-height: ~"@{pxlineValue}px";
+    line-height: ~"@{remlineValue}rem";
+}
+
+.typo {
+    color: @grey;
+    font-family: Helvetica, Arial, sans-serif;
+    .font-size(1.4);
+    .line-height(2.0);
+
+
+
+    &.view-header {
+        font-size: 16px;
+    }
+
+    &.page-name {
+        .font-size(1.6);
+        font-weight: bold;
+    }
+
+    &.input-name {
+        .font-size(1.2);
+    }
+
+    &.input-ethernet {
+        color: @grey;
+        font-weight: bold;
+        .font-size(2.0);
+        .line-height(2.0);
+    }
+
+    &.input-default {
+        // font-style: italic;
+        .font-size(2.0);
+        .line-height(2.0);
+    }
+
+    &.input-default-tableview {
+        // font-style: italic;
+        .font-size(1.8);
+        .line-height(1.8);
+    }
+
+    &.button-label {
+        text-align: center;
+        .font-size(1.4);
+        .line-height(4.0);
+
+        &.primary {
+            color: @brand-primary;
+        }
+    }
+
+    &.info-text {
+        font-style: italic;
+    }
+}
+
+
+html {
+    font-size: 62.5%;
+    line-height: 1;
+}
+
+body {
+    .typo;
+}
+
+
