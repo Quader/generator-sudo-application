@@ -35,6 +35,11 @@ Finally, initiate the generator:
 yo sudo-application
 ```
 
+### Dependencies
+
+- yo (for sure)
+- git
+
 ### Sudo-Application:app
 
 This generator creates the structure of a typically project.

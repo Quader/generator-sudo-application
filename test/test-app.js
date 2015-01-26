@@ -33,10 +33,9 @@ describe('sudo-application:app', function () {
       '.jshintrc',
 
       'bin/empty',
-      'src/empty',
       'test/empty',
 
-      'build/config/empty',
+      'build/config/files.js',
 
       'build/tasks/build.js',
       'build/tasks/deploy.js',
@@ -48,7 +47,7 @@ describe('sudo-application:app', function () {
       'build/tasks/test.js',
 
       'src/client/client.jade',
-      'src/client/components/empty',
+      'src/client/components/application/view.js',
     ]);
   });
 });

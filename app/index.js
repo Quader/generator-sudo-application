@@ -183,8 +183,10 @@ module.exports = yeoman.generators.Base.extend({
       );
 
       this.mkdir(this.destinationPath('src/') + this.props._application_name);
-      this._emil_init();
 
+      if (this.props.use_emil) {
+        this._emil.writing.call(this);
+      }
 
       // template tasks (after created the structure)
       var data = {
@@ -218,57 +220,85 @@ module.exports = yeoman.generators.Base.extend({
     }
   },
 
-  _udo_init: function () {
+  _udo: {
+    prompt: function () {
+    },
+
+    writing: function () {
+    },
+
+    repository: function () {
+      this._shell('git', ['submodule', 'add',
+        '-b experimental', // branch
+        '-f',
+        '--name udo',
+        'git@github.com:wirsich/udo.git', // url
+        'src/udo' // path
+      ]);
+    }
   },
 
-  _emil_init: function () {
+  _emil: {
+    prompt: function () {
+    },
+
+    writing: function () {
       // create emil theme
       this.directory(
         this.templatePath('_emil-theme'),
         this.destinationPath('src/' + this.props._application_name)
       );
+    },
+
+    repository: function () {
+      this._shell('git', ['submodule', 'add',
+        '-b stable', // branch
+        '-f',
+        '--name emil',
+        'git@github.com:webvariants/emil.git', // url
+        'src/emil' // path
+      ]);
+    }
   },
 
-  _setupRepository: function (next) {
-    var submodules = {
-      'emil': 'git@github.com:webvariants/emil.git',
-      'udo' : 'git@github.com:wirsich/udo.git'
-    };
+  _repository: {
+    setup: function (next) {
+      // init repo if not exists
+      if(!fs.existsSync(this.destinationPath('.git/'))) {
+        this.log(chalk.blue('> setup repository'));
+        this._shell('git', ['init']);
+      }
+      // run git submodule commands
+      if (this.props.use_udo) {
+        this.log(chalk.blue('> adding udo as submodule'));
+        this._udo.repository.call(this);
+      }
+      if (this.props.use_emil) {
+        this.log(chalk.blue('> adding emil as submodule'));
+        this._emil.repository.call(this);
+      }
 
-    // init repo if not exists
-    if(!fs.existsSync(this.destinationPath('.git/'))) {
-      this.log(chalk.blue('> setup repository'));
-      this._shell('git', ['init']);
-    }
-    // run git submodule commands
-    if (this.props.use_udo) {
-      this.log(chalk.blue('> adding udo as submodule'));
-      // this._shell('git', ['submodule', 'add', submodules['udo'], 'src/udo', '-f']);
-      this._udo_init();
-    }
-    if (this.props.use_emil) {
-      this.log(chalk.blue('> adding emil as submodule'));
-      // this._shell('git', ['submodule', 'add', submodules['emil'], 'src/emil', '-f']);
-      this._emil_init();
-    }
-
-    next();
+      next();
+    },
   },
-
 
   install: function () {
     var self = this;
     var done = this.async();
 
-    this._setupRepository(function () {
-      // self.installDependencies({
-      //   skipInstall: self.options['skip-install']
-      // });
+    if (self.options['skip-install']) {
+      done();
+      return false;
+    }
+
+    this._repository.setup.call(this, function () {
+      self.installDependencies({
+        skipInstall: self.options['skip-install']
+      });
 
       self.log(chalk.blue('processing setup of all components, please wait (this may take a while)'));
       if (!self.options['skip-install']) {
-        // @FIXME DEBUG
-        // self._shell('sh', ['setup.sh']);
+        self._shell('sh', ['setup.sh']);
       }
       done();
     });
