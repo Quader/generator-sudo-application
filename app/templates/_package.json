@@ -15,7 +15,7 @@
     "grunt-newer": "^0.7.0",
     "grunt-shell": "^0.7.0",
     "grunt-sudo-components": "0.0.6",
-    "grunt-sudo-subcomponents": "0.0.5",
+    "grunt-sudo-subcomponents": "0.0.8",
     "load-grunt-tasks": "^0.5.0",
     "time-grunt": "^0.3.2"
   },

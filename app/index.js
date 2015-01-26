@@ -2,7 +2,7 @@
 var yeoman = require('yeoman-generator');
 var chalk = require('chalk');
 var yosay = require('yosay');
-var execSync = require("exec-sync");
+var child_process = require('child_process');
 var fs = require('fs');
 var ustring = require("underscore.string");
 
@@ -69,24 +69,6 @@ module.exports = yeoman.generators.Base.extend({
           store   : true
         });
     }
-
-    // prompts.push(
-    //   {
-    //     type    : 'confirm',
-    //     name    : 'use_emil',
-    //     message : 'Do you want to use EMIL (set of UI Elements)?',
-    //     store   : true
-    //   }
-    // );
-
-    // prompts.push(
-    //   {
-    //     type    : 'confirm',
-    //     name    : 'use_udo',
-    //     message : 'Do you want to use UDO (Javascript Framework)?',
-    //     store   : true
-    //   }
-    // );
 
     var self = this;
     this.prompt(prompts, function (props) {
@@ -222,27 +204,45 @@ module.exports = yeoman.generators.Base.extend({
 
   _udo: {
     prompt: function () {
+    // prompts.push(
+    //   {
+    //     type    : 'confirm',
+    //     name    : 'use_udo',
+    //     message : 'Do you want to use UDO (Javascript Framework)?',
+    //     store   : true
+    //   }
+    // );
     },
 
-    writing: function () {
+    writing: function (next) {
     },
 
-    repository: function () {
+    repository: function (next) {
       this._shell('git', ['submodule', 'add',
-        '-b experimental', // branch
+        '-b',
+           'experimental', // branch
         '-f',
-        '--name udo',
+        '--name',
+          'udo',
         'git@github.com:wirsich/udo.git', // url
         'src/udo' // path
-      ]);
+      ], next);
     }
   },
 
   _emil: {
     prompt: function () {
+    // prompts.push(
+    //   {
+    //     type    : 'confirm',
+    //     name    : 'use_emil',
+    //     message : 'Do you want to use EMIL (set of UI Elements)?',
+    //     store   : true
+    //   }
+    // );
     },
 
-    writing: function () {
+    writing: function (next) {
       // create emil theme
       this.directory(
         this.templatePath('_emil-theme'),
@@ -250,35 +250,47 @@ module.exports = yeoman.generators.Base.extend({
       );
     },
 
-    repository: function () {
+    repository: function (next) {
       this._shell('git', ['submodule', 'add',
-        '-b stable', // branch
+        '-b',
+           'stable', // branch
         '-f',
-        '--name emil',
+        '--name',
+          'emil',
         'git@github.com:webvariants/emil.git', // url
         'src/emil' // path
-      ]);
+      ], next);
     }
   },
 
   _repository: {
     setup: function (next) {
+      var j = 1;
+      var done = function () {
+        j--;
+        if (j === 0) {
+          next();
+        }
+      };
       // init repo if not exists
       if(!fs.existsSync(this.destinationPath('.git/'))) {
+        j++;
         this.log(chalk.blue('> setup repository'));
-        this._shell('git', ['init']);
+        this._shell('git', ['init'], done);
       }
       // run git submodule commands
       if (this.props.use_udo) {
+        j++;
         this.log(chalk.blue('> adding udo as submodule'));
-        this._udo.repository.call(this);
+        this._udo.repository.call(this, done);
       }
       if (this.props.use_emil) {
+        j++;
         this.log(chalk.blue('> adding emil as submodule'));
-        this._emil.repository.call(this);
+        this._emil.repository.call(this, done);
       }
 
-      next();
+      done();
     },
   },
 
@@ -296,23 +308,29 @@ module.exports = yeoman.generators.Base.extend({
         skipInstall: self.options['skip-install']
       });
 
-      self.log(chalk.blue('processing setup of all components, please wait (this may take a while)'));
-      if (!self.options['skip-install']) {
-        self._shell('sh', ['setup.sh']);
+      if (self.options['skip-install']) {
+        done();
+        return false;
       }
-      done();
+
+      self.log(chalk.blue('processing setup of all components, please wait (this may take a while)'));
+      self._shell('sh', ['setup.sh'], done);
     });
   },
 
-  _shell: function (command, args) {
+  _shell: function (command, args, next) {
     try {
-      var ret = execSync(command + ' ' +  args.join(' '));
-      this.log(chalk.green(ret));
-      return ret;
+      var cmd = this.spawnCommand(command, args, {cwd: this.destinationPath()});
+
+      var self = this;
+      cmd.on('close', function (code) {
+        self.log(chalk[(code > 0 ? 'red' : 'green')](command+' '+ args.join(' ') +' terminates with '+ code));
+        next();
+      });
     }
     catch (e) {
       this.log(chalk.red(e));
-      return e;
+      next();
     }
   }
 });
