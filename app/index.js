@@ -10,12 +10,13 @@ module.exports = yeoman.generators.Base.extend({
 
   constructor: function () {
     yeoman.generators.Base.apply(this, arguments);
-    this.argument('name', {
+
+    this.argument('application_name', {
       desc: 'the projectname',
       type: String,
       required: false
     });
-    this.argument('desc', {
+    this.argument('application_desc', {
       desc: 'short description of the project',
       type: String,
       required: false
@@ -25,9 +26,6 @@ module.exports = yeoman.generators.Base.extend({
       type: String,
       required: false
     });
-
-    this.application_name = this.name;
-    this.application_desc = this.desc;
   },
 
   initializing: function () {
@@ -70,18 +68,7 @@ module.exports = yeoman.generators.Base.extend({
           store   : true
         });
     }
-    var self = this;
 
-    // {
-    //   type    : 'list',
-    //   name    : 'repository_type',
-    //   message : 'What version management do you use?',
-    //   choices : [
-    //     'git',
-    //     'mercurial'
-    //   ],
-    //   store   : true
-    // },
     prompts.push(
       {
         type    : 'confirm',
@@ -100,10 +87,14 @@ module.exports = yeoman.generators.Base.extend({
       }
     );
 
+    var self = this;
     this.prompt(prompts, function (props) {
-      self.application_name = self.application_name || props['application_name'];
-      self.application_desc = self.application_desc || props['application_desc'];
-      self.author = self.author || props['author'];
+      self.props = props;
+
+      self.props.application_name = self.application_name || props.application_name;
+      self.props.application_desc = self.application_desc || props.application_desc;
+      self.props.author           = self.author || props.author;
+
       done();
     }.bind(this));
   },
@@ -135,13 +126,24 @@ module.exports = yeoman.generators.Base.extend({
         this.destinationPath('Gruntfile.js')
       );
 
+      var components = [];
+
+      if (this.props.use_udo) {
+        components.push('"udo": "src/udo"');
+      }
+
+      if (this.props.use_emil) {
+        components.push('"emil": "src/emil"');
+      }
+
       this.fs.copyTpl(
         this.templatePath('_package.json'),
         this.destinationPath('package.json'),
         {
-          "application_name": this.application_name,
-          "author": this.author,
-          "application_desc": this.application_desc
+          "application_name": this.props.application_name,
+          "author": this.props.author,
+          "application_desc": this.props.application_desc,
+          "components": components.join(",\n")
         }
       );
 
@@ -149,9 +151,9 @@ module.exports = yeoman.generators.Base.extend({
         this.templatePath('_bower.json'),
         this.destinationPath('bower.json'),
         {
-          "application_name": this.application_name,
-          "author": this.author,
-          "application_desc": this.application_desc
+          "application_name": this.props.application_name,
+          "author": this.props.author,
+          "application_desc": this.props.application_desc
         }
       );
 
@@ -194,11 +196,11 @@ module.exports = yeoman.generators.Base.extend({
   _shell: function (command, args) {
     try {
       var ret = execSync(command + ' ' +  args.join(' '));
-      console.log(ret);
+      this.log(chalk.green(ret));
       return ret;
     }
     catch (e) {
-      console.warn(e);
+      this.log(chalk.red(e));
       return e;
     }
   },
@@ -211,16 +213,16 @@ module.exports = yeoman.generators.Base.extend({
 
     // init repo if not exists
     if(!fs.existsSync(this.destinationPath('.git/'))) {
-      this.log(chalk.green('setup repository'));
+      this.log(chalk.green('> setup repository'));
       this._shell('git', ['init']);
     }
     // run git submodule commands
     if (this.props.use_udo) {
-      this.log(chalk.green('adding udo as submodule'));
+      this.log(chalk.green('> adding udo as submodule'));
       this._shell('git', ['submodule', 'add', submodules['udo'], 'src/udo', '-f']);
     }
     if (this.props.use_emil) {
-      this.log(chalk.green('adding emil as submodule'));
+      this.log(chalk.green('> adding emil as submodule'));
       this._shell('git', ['submodule', 'add', submodules['emil'], 'src/emil', '-f']);
     }
 
@@ -229,13 +231,18 @@ module.exports = yeoman.generators.Base.extend({
 
   install: function () {
     var self = this;
+    var done = this.async();
+
     this._setupRepository(function () {
       self.installDependencies({
         skipInstall: self.options['skip-install']
       });
 
-      self.log(chalk.green('processing setup of all components, please wait (this may take a while)'));
-      self._shell('sh', ['setup.sh']);
+      self.log(chalk.blue('processing setup of all components, please wait (this may take a while)'));
+      if (!self.options['skip-install']) {
+        self._shell('sh', ['setup.sh']);
+      }
+      done();
     });
   }
 });

@@ -31,7 +31,7 @@
       "vendor_npm": "node_modules"
     },
     "components": {
-      "emil": "src/emil"
+      <%= components %>
     }
   },
   "devDependencies": {}
