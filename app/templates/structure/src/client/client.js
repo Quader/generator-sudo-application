@@ -3,14 +3,12 @@ client = udo.app.Application.extend({
   construct: function (name) {
     this._parent(name);
 
-    // import from sudo components?
-    // export
     window.Controller = this.Controller.bind(this);
     window.ViewController = this.ViewController.bind(this);
     window.View = this.View.bind(this);
     window.Template = this.Template.bind(this);
     window.Style = this.Style.bind(this);
-    // window.onerror = this._error.bind(this);
+    window.onerror = this._error.bind(this);
 
     // bind Events
     document.onreadystatechange = this.__readyStateChanged.bind(this);
@@ -55,11 +53,7 @@ client = udo.app.Application.extend({
     }
   },
 
-  //@TODO this.controllers.update for parent class
   update: function () {
-    // @FIXME anchor as payload for construct viewcontroller?
-    // this.useViewController('master-detail/viewcontroller').state({foo: 'bar'}).anchor('#main2').render();
-    // this.viewcontroller('application/main', '#app', 'application/content-detail');
     this.controller.update();
   },
 
@@ -75,7 +69,6 @@ client = udo.app.Application.extend({
     }).catch(this._error.bind(this, {msg: 'Error while resolving View "'+ name +'"'}));
   },
 
-  //@TODO promise for parent requests
   View: function (name, templateName, extend, mixin) {
     var self = this;
     this.loadTemplate(templateName).then(function (template) {

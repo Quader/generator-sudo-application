@@ -1,0 +1,4 @@
+
+client.Controller('application/navigationcontroller', {
+
+});
