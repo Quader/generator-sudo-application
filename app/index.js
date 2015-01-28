@@ -70,13 +70,17 @@ module.exports = yeoman.generators.Base.extend({
         });
     }
 
+    var components = ['_emil', '_udo'];
+    var i = 0, l = components.length;
+    for (; i < l; ++i) {
+      if (this[components[i]] && this[components[i]].prompt) {
+        prompts.push(this[components[i]].prompt());
+      }
+    }
+
     var self = this;
     this.prompt(prompts, function (props) {
       self.props = props;
-
-      //@TODO
-      self.props.use_udo  = true;
-      self.props.use_emil = true;
 
       self.props.application_name  = self.application_name || props.application_name;
       self.props.application_desc  = self.application_desc || props.application_desc;
@@ -114,6 +118,7 @@ module.exports = yeoman.generators.Base.extend({
         this.destinationPath('Gruntfile.js')
       );
 
+      // @TODO modulize
       var components = [];
 
       if (this.props.use_udo) {
@@ -204,14 +209,12 @@ module.exports = yeoman.generators.Base.extend({
 
   _udo: {
     prompt: function () {
-    // prompts.push(
-    //   {
-    //     type    : 'confirm',
-    //     name    : 'use_udo',
-    //     message : 'Do you want to use UDO (Javascript Framework)?',
-    //     store   : true
-    //   }
-    // );
+      return {
+        type    : 'confirm',
+        name    : 'use_udo',
+        message : 'Do you want to use UDO (Javascript Framework)?',
+        store   : true
+      };
     },
 
     writing: function (next) {
@@ -232,14 +235,12 @@ module.exports = yeoman.generators.Base.extend({
 
   _emil: {
     prompt: function () {
-    // prompts.push(
-    //   {
-    //     type    : 'confirm',
-    //     name    : 'use_emil',
-    //     message : 'Do you want to use EMIL (set of UI Elements)?',
-    //     store   : true
-    //   }
-    // );
+      return {
+        type    : 'confirm',
+        name    : 'use_emil',
+        message : 'Do you want to use EMIL (set of UI Elements)?',
+        store   : true
+      };
     },
 
     writing: function (next) {
