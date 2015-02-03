@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = function(grunt) {
 
   grunt.config.merge({
@@ -22,5 +24,4 @@ module.exports = function(grunt) {
       }
     }
   });
-
 };

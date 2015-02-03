@@ -1,3 +1,4 @@
+'use strict';
 
 client.ViewController('application/mainviewcontroller', '#application', 'application/mainview', {
   didload: function (app) {

@@ -1,3 +1,5 @@
+'use strict';
+
 //@TODO lint sh files
 //@TODO lint json files
 //@TODO lint bin html files

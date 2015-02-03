@@ -1,3 +1,4 @@
+'use strict';
 
 client = udo.app.Application.extend({
   construct: function (name) {

@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = function(grunt) {
 
   //@TODO use rsync from npm module
