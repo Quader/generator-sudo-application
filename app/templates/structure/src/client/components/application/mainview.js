@@ -1,6 +1,6 @@
 'use strict';
 
-client.View('application/main', 'application/maintemplate', {
+client.View('application/mainview', 'application/maintemplate', {
 
   configure: function () {
     this._parent();
@@ -17,7 +17,7 @@ client.View('application/main', 'application/maintemplate', {
   },
 
   didAppear: function () {
-    console.log(this.namespace()+' didappear');
+    console.log(this.namespace()+' didAppear');
     this._parent();
   }
 });

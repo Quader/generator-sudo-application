@@ -1,15 +1,14 @@
-'use strict';
 
 client = udo.app.Application.extend({
   construct: function (name) {
     this._parent(name);
 
-    window.Controller = this.Controller.bind(this);
-    window.ViewController = this.ViewController.bind(this);
-    window.View = this.View.bind(this);
-    window.Template = this.Template.bind(this);
-    window.Style = this.Style.bind(this);
-    window.onerror = this._error.bind(this);
+    // window.Controller = this.Controller.bind(this);
+    // window.ViewController = this.ViewController.bind(this);
+    // window.View = this.View.bind(this);
+    // window.Template = this.Template.bind(this);
+    // window.Style = this.Style.bind(this);
+    // window.onerror = this._error.bind(this);
 
     // bind Events
     document.onreadystatechange = this.__readyStateChanged.bind(this);
@@ -21,7 +20,7 @@ client = udo.app.Application.extend({
   },
 
   __readyStateChanged: function () {
-    if (document.readyState == "complete") {
+    if (document.readyState === "complete") {
       this.configure();
     }
   },
@@ -46,7 +45,7 @@ client = udo.app.Application.extend({
     try {
       // @FIXME anchor as payload for construct viewcontroller?
       this.mainviewcontroller = this.useViewController('application/mainviewcontroller');
-      this.mainview.attach(this);
+      // this.mainview.attach(this);
 
       this.update();
     } catch (e) {
@@ -55,7 +54,7 @@ client = udo.app.Application.extend({
   },
 
   update: function () {
-    this.controller.update();
+    this.mainviewcontroller.update();
   },
 
   // shortcuts for register component, used by the grunt-sudo-components
