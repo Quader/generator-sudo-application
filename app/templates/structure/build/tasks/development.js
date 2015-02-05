@@ -25,7 +25,7 @@ module.exports = function(grunt) {
         files: [
           '<%= pkg.project.directories.src %>*',
         ],
-        tasks: [],
+        tasks: ['development'],
         options: {
           spawn: true,
           interrupt: true,
