@@ -1,6 +1,6 @@
 {
   "name": "generator-sudo-application",
-  "version": "0.0.9",
+  "version": "0.1.0",
   "description": "Yeoman generator for projects created by webvariants sudo team",
   "license": "MIT",
   "main": "app/index.js",

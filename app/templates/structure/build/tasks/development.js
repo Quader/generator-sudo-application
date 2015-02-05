@@ -23,7 +23,7 @@ module.exports = function(grunt) {
     watch: {
       development: {
         files: [
-          '<%= pkg.project.directories.src %>*',
+          '<%= pkg.project.directories.src %>client/**/*',
         ],
         tasks: ['development'],
         options: {
